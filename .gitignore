@@ -1,0 +1,26 @@
+# Entornos virtuales
+venv/
+.env/
+__pycache__/
+*.pyc
+
+# Archivos de configuración o credenciales
+*.env
+*.db
+*.sqlite3
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs y temporales
+*.log
+*.tmp
+
+# Configuración de editores
+.vscode/
+.idea/
+
+# Carpeta de dependencias si usas pipenv o poetry
+Pipfile.lock
+poetry.lock
