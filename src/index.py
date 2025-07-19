@@ -1,7 +1,7 @@
-from flask import Flask
+from flask import Flask, render_template
 from database import get_db_connection
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
 @app.route("/")
 def test_db_connection():
@@ -18,5 +18,15 @@ def test_db_connection():
     except Exception as e:
         return f"❌ Error ejecutando consulta: {str(e)}", 500
 
-if __name__ == "__main__":
+@app.route('/miembros')
+def listar_miembros():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nombre, email, fecha_union FROM miembros ORDER BY nombre;")
+    lista_miembros = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('miembros.html', miembros=lista_miembros)
+
+if __name__ == '__main__':
     app.run(debug=True)

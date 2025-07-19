@@ -1,0 +1,29 @@
+<!-- templates/miembros.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Miembros</title>
+</head>
+<body>
+    <h1>Miembros del Club</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Fecha de Unión</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for miembro in miembros %}
+            <tr>
+                <td>{{ miembro[1] }}</td>
+                <td>{{ miembro[2] }}</td>
+                <td>{{ miembro[3] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
