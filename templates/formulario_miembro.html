@@ -1,0 +1,20 @@
+<!-- templates/formulario_miembro.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Añadir Miembro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Nuevo Miembro</h1>
+    <form action="{{ url_for('anadir_miembro') }}" method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" name="nombre" required><br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" required><br>
+        <button type="submit">Guardar</button>
+    </form>
+    <a href="{{ url_for('listar_miembros') }}">Volver a la lista</a>
+</body>
+</html>

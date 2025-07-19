@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Próximas Sesiones</title>
+    <link rel="stylesheet" href="/static/style.css"> <!-- opcional -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>🎬 Próximas Sesiones del Cineclub</h1>
+
+    {% if sesiones %}
+        <ul>
+            {% for s in sesiones %}
+                <li>
+                    <strong>{{ s[1].strftime('%d/%m/%Y %H:%M') }}</strong> - 
+                    <em>{{ s[2] }}</em> (Anfitrión: {{ s[3] }})
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay sesiones programadas aún.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('nueva_sesion') }}">
+        <button>➕ Programar Nueva Sesión</button>
+    </a>
+</body>
+</html>
