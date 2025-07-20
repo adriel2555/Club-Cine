@@ -1,18 +1,55 @@
-<!-- templates/miembros.html -->
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Lista de Miembros</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    <h1>Miembros Registrados</h1>
-    <ul>
-        {% for miembro in miembros %}
-        <li>{{ miembro[1] }} - {{ miembro[2] }}</li>
-        {% endfor %}
-    </ul>
-    <a href="{{ url_for('anadir_miembro') }}">Añadir nuevo miembro</a>
+    <nav>
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a> |
+        <a href="{{ url_for('listar_miembros') }}">👥 Miembros</a> |
+        <a href="{{ url_for('programar_sesion') }}">🎬 Nueva Sesión</a> |
+        <a href="{{ url_for('listar_asistencias') }}">✅ Asistencias</a>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Miembros Registrados</h2>
+
+        {% if miembros %}
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Correo electrónico</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for miembro in miembros %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ miembro[1] }}</td>
+                    <td>{{ miembro[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-warning mt-3">
+            No hay miembros registrados.
+        </div>
+        {% endif %}
+    </div>
+
+
+    <a href="{{ url_for('anadir_miembro') }}" class="btn">➕ Añadir nuevo miembro</a>
+    <br>
+    <a href="{{ url_for('dashboard') }}">⬅ Volver al Dashboard</a>
 </body>
+
 </html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Sesión</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <nav>
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a> |
+        <a href="{{ url_for('listar_miembros') }}">👥 Miembros</a> |
+        <a href="{{ url_for('programar_sesion') }}">🎬 Nueva Sesión</a> |
+        <a href="{{ url_for('listar_asistencias') }}">✅ Asistencias</a>
+    </nav>
+    
+    <h1>Detalle de la Sesión</h1>
+
+    <h2>{{ sesion[2] }}</h2> <!-- Título de la película -->
+    <p><strong>Fecha:</strong> {{ sesion[0] }}</p>
+    <p><strong>Lugar:</strong> {{ sesion[1] }}</p>
+    <p><strong>Anfitrión:</strong> {{ sesion[3] }}</p>
+
+    <h3>Asistentes Confirmados</h3>
+    <ul>
+        {% for asistente in asistentes %}
+        <li>{{ asistente[0] }}</li> <!-- ← asegúrate que asistente[0] sea el nombre -->
+        {% else %}
+        <li>No hay asistentes aún</li>
+        {% endfor %}
+    </ul>
+
+
+    <h3>¿Quieres asistir?</h3>
+    <form action="{{ url_for('confirmar_asistencia', id_sesion=id_sesion) }}" method="POST">
+        <label for="id_miembro">Selecciona tu nombre:</label>
+        <select name="id_miembro" required>
+            <option value="">-- Selecciona --</option>
+            {% for m in miembros %}
+            <option value="{{ m[0] }}">{{ m[1] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">¡Sí, me apunto!</button>
+    </form>
+    
+
+
+</body>
+
+</html>
