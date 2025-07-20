@@ -9,11 +9,11 @@
 
 <body>
     <nav>
-    <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a> |
-    <a href="{{ url_for('listar_miembros') }}">👥 Miembros</a> |
-    <a href="{{ url_for('programar_sesion') }}">🎬 Nueva Sesión</a> |
-    <a href="{{ url_for('listar_asistencias') }}">✅ Asistencias</a>
-</nav>
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a> |
+        <a href="{{ url_for('listar_miembros') }}">👥 Miembros</a> |
+        <a href="{{ url_for('programar_sesion') }}">🎬 Nueva Sesión</a> |
+        <a href="{{ url_for('listar_asistencias') }}">✅ Asistencias</a>
+    </nav>
     <h2>📅 Programar una Nueva Sesión</h2>
 
     <form method="POST">
@@ -21,7 +21,7 @@
         <select name="pelicula" required>
             <option value="">-- Selecciona una película --</option>
             {% for p in peliculas %}
-            <option value="{{ p[0] }}">{{ p[1] }} ({{ p[2] }})</option>
+            <option value="{{ p['id'] }}">{{ p['titulo'] }} ({{ p['ano_lanzamiento'] }})</option>
             {% endfor %}
         </select>
 
@@ -35,7 +35,7 @@
         <select name="anfitrion" required>
             <option value="">-- Selecciona un miembro --</option>
             {% for m in miembros %}
-            <option value="{{ m[0] }}">{{ m[1] }}</option>
+            <option value="{{ m['id'] }}">{{ m['nombre'] }}</option>
             {% endfor %}
         </select>
 

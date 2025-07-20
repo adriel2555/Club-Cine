@@ -1,19 +1,23 @@
-import psycopg2
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor # <-- IMPORTANTE: Importa esto
 from dotenv import load_dotenv
 
-# Carga las variables del archivo .env
 load_dotenv()
 
 def get_db_connection():
     try:
         conn = psycopg2.connect(
             host=os.getenv("DB_HOST"),
-            dbname=os.getenv("DB_NAME"),
+            database=os.getenv("DB_NAME"),
             user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD")
+            password=os.getenv("DB_PASSWORD"),
+            # Le decimos a la conexión que todos los cursores que cree
+            # deben ser de tipo RealDictCursor.
+            cursor_factory=RealDictCursor # <-- IMPORTANTE: Añade esta línea
         )
+        print("Conexión a la base de datos exitosa.")
         return conn
-    except Exception as e:
-        print("Error de conexión a la base de datos:", e)
+    except psycopg2.OperationalError as e:
+        print(f"No se pudo conectar a la base de datos: {e}")
         return None
