@@ -1,52 +1,75 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <!-- El título cambiará según la página -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Club de Cine{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Agrega Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
-    <nav>
-        <!-- Lógica de la barra de navegación dinámica -->
-        <div class="nav-left">
-            <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
-        </div>
-        <div class="nav-right">
-            {% if 'user_id' in session %}
-                <!-- **ENLACES PARA USUARIOS CON SESIÓN INICIADA** -->
-                <a href="{{ url_for('listar_miembros') }}">👥 Miembros</a>
+    <!-- Header con logo y navegación -->
+    <header class="site-header">
+        <div class="container">
+            <div class="logo">
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-film"></i>
+                    <span>CineClub</span>
+                </a>
+            </div>
+
+            <nav class="main-nav">
+
+                {% if 'user_id' in session %}
+                <a href="{{ url_for('listar_miembros') }}"><i class="fas fa-users"></i> Miembros</a>
 
                 {% if session.get('is_admin') %}
-                    <!-- **ENLACES SOLO PARA ADMINS** -->
-                    <a href="{{ url_for('programar_sesion') }}">🎬 Nueva Sesión</a>
-                    <a href="{{ url_for('listar_asistencias') }}">✅ Asistencias</a>
+                <a href="{{ url_for('programar_sesion') }}"><i class="fas fa-calendar-plus"></i> Nueva Sesión</a>
+                <a href="{{ url_for('listar_asistencias') }}"><i class="fas fa-clipboard-check"></i> Asistencias</a>
                 {% endif %}
 
-                <span class="welcome-user">| Bienvenido, {{ session['user_name'] }}!</span>
-                <a href="{{ url_for('logout') }}" class="logout-button">🚪 Cerrar Sesión</a>
-
-            {% else %}
-                <!-- **ENLACES PARA USUARIOS SIN SESIÓN** -->
-                <a href="{{ url_for('login') }}">🔑 Iniciar Sesión</a>
-                <a href="{{ url_for('registro') }}">✍️ Registrarse</a>
-            {% endif %}
+                <div class="user-menu">
+                    <span class="welcome-user"><i class="fas fa-user-circle"></i> {{ session['user_name'] }}</span>
+                    <a href="{{ url_for('logout') }}" class="logout-button"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+                {% else %}
+                <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
+                <a href="{{ url_for('registro') }}"><i class="fas fa-user-plus"></i> Registrarse</a>
+                {% endif %}
+            </nav>
         </div>
-    </nav>
+    </header>
 
-    <main class="container">
-        <!-- Bloque para mostrar los mensajes flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
+    <main class="main-content">
+        <div class="container">
+            <!-- Mensajes flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
             {% endif %}
-        {% endwith %}
+            {% endwith %}
 
-        <!-- Aquí se insertará el contenido de cada página específica -->
-        {% block content %}{% endblock %}
+            <!-- Contenido de cada página -->
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2023 CineClub. Todos los derechos reservados.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
 </body>
+
 </html>

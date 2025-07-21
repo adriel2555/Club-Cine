@@ -3,63 +3,85 @@
 {% block title %}Detalles de: {{ sesion.titulo }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="session-detail card">
     <!-- SECCIÓN DE DETALLES DE LA SESIÓN -->
-    <div class="mb-4">
-        <h1 class="mb-3">🎬 {{ sesion.titulo }}</h1>
-        <p><strong>Anfitrión:</strong> {{ sesion.anfitrion }}</p>
-        <p><strong>Fecha:</strong> {{ sesion.fecha_proyeccion }}</p>
-        <p><strong>Lugar:</strong> {{ sesion.lugar }}</p>
+    <div class="session-header">
+        <h1><i class="fas fa-film"></i> {{ sesion.titulo }}</h1>
+        
+        <div class="session-info">
+            <div class="info-item">
+                <i class="fas fa-user"></i>
+                <span><strong>Anfitrión:</strong> {{ sesion.anfitrion }}</span>
+            </div>
+            
+            <div class="info-item">
+                <i class="fas fa-calendar-day"></i>
+                <span><strong>Fecha:</strong> {{ sesion.fecha_proyeccion }}</span>
+            </div>
+            
+            <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span><strong>Lugar:</strong> {{ sesion.lugar }}</span>
+            </div>
+        </div>
     </div>
 
     <hr>
 
     <!-- SECCIÓN DE LISTA DE ASISTENTES -->
-    <div class="mb-4">
-        <h3>✅ Asistentes Confirmados ({{ asistentes|length }})</h3>
+    <div class="attendees-section">
+        <h3><i class="fas fa-users"></i> Asistentes Confirmados ({{ asistentes|length }})</h3>
+        
         {% if asistentes %}
-            <ul class="list-group">
-                {% for asistente in asistentes %}
-                    <li class="list-group-item">{{ asistente.nombre }}</li>
-                {% endfor %}
-            </ul>
+        <div class="attendees-list">
+            {% for asistente in asistentes %}
+            <div class="attendee-card">
+                <i class="fas fa-user-check"></i>
+                <span>{{ asistente.nombre }}</span>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-            <p class="text-muted">No hay asistentes aún. ¡Sé el primero!</p>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No hay asistentes aún. ¡Sé el primero!
+        </div>
         {% endif %}
     </div>
 
     <hr>
 
-    <!-- SECCIÓN DE ACCIÓN: CONFIRMAR O CANCELAR ASISTENCIA (LÓGICA AUTOMÁTICA) -->
-    <div class="mb-4">
+    <!-- SECCIÓN DE ACCIÓN: CONFIRMAR O CANCELAR ASISTENCIA -->
+    <div class="attendance-actions">
         {% if 'user_id' in session %}
-            <!-- El usuario ha iniciado sesión. -->
-            
             {% if usuario_esta_inscrito %}
-                <!-- Si el usuario YA ESTÁ inscrito, muestra el botón para cancelar. -->
-                <p><strong>¡Ya estás en la lista!</strong> Si no puedes venir, puedes cancelar tu asistencia.</p>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> ¡Ya estás en la lista!
+                </div>
                 <form action="{{ url_for('cancelar_asistencia', id_sesion=sesion.id) }}" method="POST">
-                    <button type="submit" class="btn btn-danger">Cancelar mi asistencia</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Cancelar mi asistencia
+                    </button>
                 </form>
             {% else %}
-                <!-- Si el usuario NO ESTÁ inscrito, muestra el botón para apuntarse. -->
-                <p><strong>¿Quieres unirte a esta sesión?</strong></p>
                 <form action="{{ url_for('confirmar_asistencia', id_sesion=sesion.id) }}" method="POST">
-                    <button type="submit" class="btn btn-primary">¡Sí, me apunto!</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> ¡Sí, me apunto!
+                    </button>
                 </form>
             {% endif %}
-            
         {% else %}
-            <!-- Si el usuario NO ha iniciado sesión, muéstrale enlaces para que lo haga. -->
-            <p>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-circle"></i> 
                 <a href="{{ url_for('login') }}">Inicia sesión</a> o 
                 <a href="{{ url_for('registro') }}">regístrate</a> para poder apuntarte.
-            </p>
+            </div>
         {% endif %}
     </div>
 
-    <div class="mt-4">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">⬅ Volver al Dashboard</a>
+    <div class="text-center mt-4">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+        </a>
     </div>
 </div>
 {% endblock %}

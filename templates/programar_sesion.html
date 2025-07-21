@@ -1,36 +1,62 @@
 {% extends 'layout.html' %}
 
-{% block title %}Programar Sesión - Club de Cine{% endblock %}
+{% block title %}Programar Sesión - CineClub{% endblock %}
 
 {% block content %}
-    <h2>📅 Programar una Nueva Sesión</h2>
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-calendar-plus"></i> Programar Nueva Sesión</h2>
+    </div>
+    
+    <div class="card-body">
+        <form method="POST" class="form-styled">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-film"></i> Película
+                </label>
+                <select name="pelicula" class="form-control" required>
+                    <option value="">-- Selecciona una película --</option>
+                    {% for p in peliculas %}
+                    <option value="{{ p['id'] }}">{{ p['titulo'] }} ({{ p['ano_lanzamiento'] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <form method="POST" class="form-styled">
-        <label>Película:</label>
-        <select name="pelicula" required>
-            <option value="">-- Selecciona una película --</option>
-            {% for p in peliculas %}
-            <option value="{{ p['id'] }}">{{ p['titulo'] }} ({{ p['ano_lanzamiento'] }})</option>
-            {% endfor %}
-        </select>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-calendar-alt"></i> Fecha y hora
+                </label>
+                <input type="datetime-local" name="fecha" class="form-control" required min="{{ now }}">
+            </div>
 
-        <label>Fecha y hora:</label>
-        <input type="datetime-local" name="fecha" required min="{{ now }}">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-map-marker-alt"></i> Lugar
+                </label>
+                <input type="text" name="lugar" class="form-control" required>
+            </div>
 
-        <label>Lugar:</label>
-        <input type="text" name="lugar" required>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-user-tie"></i> Anfitrión
+                </label>
+                <select name="anfitrion" class="form-control" required>
+                    <option value="">-- Selecciona un miembro --</option>
+                    {% for m in miembros %}
+                    <option value="{{ m['id'] }}">{{ m['nombre'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <label>Anfitrión:</label>
-        <select name="anfitrion" required>
-            <option value="">-- Selecciona un miembro --</option>
-            {% for m in miembros %}
-            <option value="{{ m['id'] }}">{{ m['nombre'] }}</option>
-            {% endfor %}
-        </select>
-
-        <button type="submit">Programar Sesión</button>
-    </form>
-
-    <br>
-    <a href="{{ url_for('dashboard') }}">⬅ Volver al Dashboard</a>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Programar Sesión
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

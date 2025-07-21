@@ -3,36 +3,38 @@
 {% block title %}Dashboard - CineClub{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">🎬 Próximas Sesiones</h1>
-
+<div class="card">
+    <h1><i class="fas fa-calendar-alt"></i> Próximas Sesiones</h1>
+    
     {% if sesiones %}
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Película</th>
-                    <th>Anfitrión</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sesion in sesiones %}
-                <tr>
-                    <td>{{ sesion['fecha_proyeccion'] }}</td>
-                    <td>{{ sesion['titulo'] }}</td>
-                    <td>{{ sesion['anfitrion'] }}</td>
-                    <td><a href="{{ url_for('detalle_sesion', id_sesion=sesion['id']) }}" class="btn btn-primary btn-sm">Ver Detalles</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="upcoming-sessions">
+        {% for sesion in sesiones %}
+        <div class="session-card">
+            <h3>{{ sesion['titulo'] }}</h3>
+            <p>{{ sesion['fecha_proyeccion'] }}</p>
+            
+            <div class="session-meta">
+                <span><i class="fas fa-user"></i> {{ sesion['anfitrion'] }}</span>
+            </div>
+            
+            <a href="{{ url_for('detalle_sesion', id_sesion=sesion['id']) }}" class="btn btn-primary">
+                Ver Detalles <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        {% endfor %}
     </div>
     {% else %}
-    <div class="alert alert-info">No hay sesiones programadas actualmente.</div>
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No hay sesiones programadas actualmente.
+    </div>
     {% endif %}
-
+    
     {% if session.get('es_admin') %}
-    <a href="{{ url_for('programar_sesion') }}" class="btn btn-success mt-4">➕ Programar Nueva Sesión</a>
+    <div class="text-center mt-4">
+        <a href="{{ url_for('programar_sesion') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Programar Nueva Sesión
+        </a>
+    </div>
     {% endif %}
+</div>
 {% endblock %}
