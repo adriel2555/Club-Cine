@@ -31,60 +31,35 @@ def test_db_connection():
 # Ruta de Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Si la petición es GET, solo muestra el formulario
-    if request.method == 'GET':
-        return render_template('login.html')
-
-    # Si la petición es POST, procesamos los datos
     if request.method == 'POST':
-        print("\n--- INICIO DEPURACIÓN LOGIN ---")
         email = request.form.get('email')
         password = request.form.get('password')
-        print(f"1. Datos del formulario: Email='{email}'")
-
+        
         conn = get_db_connection()
         if not conn:
-            print("2. ERROR: No se pudo conectar a la base de datos.")
             flash('Error de conexión con la base de datos.', 'danger')
             return render_template('login.html')
 
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM miembros WHERE email = %s", (email,))
         miembro = cursor.fetchone()
-        
-        if not miembro:
-            print("2. RESULTADO: Usuario NO encontrado en la base de datos.")
-            flash('Email o contraseña incorrectos.', 'danger')
-            cursor.close()
-            conn.close()
-            return redirect(url_for('login'))
-        
-        print(f"2. RESULTADO: Usuario encontrado -> {miembro['nombre']}")
-        
-        # Comprobación de la contraseña
-        password_valida = check_password_hash(miembro['password_hash'], password)
-        
-        if not password_valida:
-            print("3. RESULTADO: La contraseña NO coincide.")
-            flash('Email o contraseña incorrectos.', 'danger')
-            cursor.close()
-            conn.close()
-            return redirect(url_for('login'))
-
-        print("3. RESULTADO: ¡La contraseña COINCIDE! Creando sesión...")
-        
-        # Si llegamos aquí, todo está bien. Creamos la sesión.
-        session['user_id'] = miembro['id']
-        session['user_name'] = miembro['nombre']
-        session['is_admin'] = miembro['es_admin']
-        
-        print("4. SESIÓN CREADA. Redirigiendo al dashboard...")
-        print("--- FIN DEPURACIÓN LOGIN ---\n")
-        
-        flash('Inicio de sesión exitoso.', 'success')
         cursor.close()
         conn.close()
-        return redirect(url_for('dashboard'))
+
+        if miembro and check_password_hash(miembro['password_hash'], password):
+            session['user_id'] = miembro['id']
+            session['user_name'] = miembro['nombre']
+            session['is_admin'] = miembro['es_admin']
+            flash('Inicio de sesión exitoso.', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            # ESTA ES LA CORRECCIÓN CLAVE
+            # En lugar de redirigir, volvemos a mostrar la plantilla de login con un mensaje.
+            flash('Email o contraseña incorrectos. Por favor, inténtalo de nuevo.', 'danger')
+            return render_template('login.html')
+
+    # Si el método es GET, simplemente mostramos la página
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -104,19 +79,16 @@ def registro():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Verificación básica de que los campos no están vacíos
         if not nombre or not email or not password:
             flash('Todos los campos son obligatorios.', 'danger')
-            return render_template('registro.html')
+            return render_template('registro.html') # Renderizar, no redirigir
 
         conn = get_db_connection()
         if not conn:
             flash('Error de conexión con la base de datos.', 'danger')
-            return render_template('registro.html')
+            return render_template('registro.html') # Renderizar, no redirigir
             
         cursor = conn.cursor()
-
-        # 1. VERIFICAR SI EL EMAIL YA EXISTE
         cursor.execute("SELECT id FROM miembros WHERE email = %s", (email,))
         existing_user = cursor.fetchone()
         
@@ -124,17 +96,10 @@ def registro():
             flash('Este correo electrónico ya está registrado. Por favor, inicia sesión.', 'warning')
             cursor.close()
             conn.close()
-            return redirect(url_for('login'))
+            return render_template('registro.html') # Renderizar, no redirigir
 
-        # 2. SI NO EXISTE, HASHEAR LA CONTRASEÑA E INSERTAR
-        # Asegúrate de que las funciones generate_password_hash y check_password_hash
-        # están importadas correctamente al principio de tu archivo:
-        # from werkzeug.security import generate_password_hash, check_password_hash
-        
         password_hash = generate_password_hash(password)
         
-        print(f"## DEBUG-REGISTRO ## Guardando nuevo usuario {email} con hash: {password_hash[:30]}...") # Imprimimos solo una parte del hash
-
         try:
             cursor.execute(
                 "INSERT INTO miembros (nombre, email, password_hash) VALUES (%s, %s, %s)",
@@ -142,11 +107,11 @@ def registro():
             )
             conn.commit()
             flash('¡Registro exitoso! Ahora puedes iniciar sesión.', 'success')
-            return redirect(url_for('login'))
+            return redirect(url_for('login')) # Aquí la redirección SÍ es correcta
         except Exception as e:
             conn.rollback()
             flash(f'Ocurrió un error durante el registro: {e}', 'danger')
-            return render_template('registro.html')
+            return render_template('registro.html') # Renderizar, no redirigir
         finally:
             cursor.close()
             conn.close()
@@ -165,7 +130,8 @@ def login_required(f):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not session.get('es_admin'):
+        # Usamos 'is_admin', que es la clave que guardamos en la sesión
+        if not session.get('is_admin'):
             flash('Acceso restringido a administradores', 'danger')
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
@@ -267,12 +233,12 @@ def programar_sesion():
     return render_template('programar_sesion.html', peliculas=peliculas, miembros=miembros)
 
 @app.route('/sesion/<int:id_sesion>')
+@login_required # Protegemos para que solo usuarios logueados vean los detalles
 def detalle_sesion(id_sesion):
     conn = get_db_connection()
-    # (resto de la conexión...)
     cursor = conn.cursor()
 
-    # Consulta 1: Detalles de la sesión (ESTO ESTÁ BIEN)
+    # Consulta 1: Detalles de la sesión. Es la más importante.
     cursor.execute("""
         SELECT s.id, s.fecha_proyeccion, s.lugar, p.titulo, m.nombre AS anfitrion
         FROM sesiones s
@@ -282,68 +248,93 @@ def detalle_sesion(id_sesion):
     """, (id_sesion,))
     sesion_detalle = cursor.fetchone()
 
-    # Consulta 2: Lista de asistentes (ESTO ESTÁ BIEN)
+    # === COMPROBACIÓN CRUCIAL ===
+    # Si la sesión no existe, no continuamos.
+    if not sesion_detalle:
+        flash('La sesión que buscas no existe.', 'danger')
+        cursor.close()
+        conn.close()
+        return redirect(url_for('dashboard'))
+
+    # Si la sesión SÍ existe, procedemos a buscar a los asistentes.
     cursor.execute("""
         SELECT m.id, m.nombre FROM asistencias a
         JOIN miembros m ON a.id_miembro = m.id
         WHERE a.id_sesion = %s;
     """, (id_sesion,))
     asistentes = cursor.fetchall()
-    
-    # Aquí deberías obtener la lista de todos los miembros para el menú desplegable (si aún lo usas)
-    cursor.execute("SELECT id, nombre FROM miembros")
-    miembros_todos = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    if sesion_detalle is None:
-        return "Sesión no encontrada", 404
 
     # Lógica para saber si el usuario actual está inscrito
     usuario_esta_inscrito = False
-    if 'user_id' in session:
-        id_miembro_actual = session['user_id']
-        
-        # ===== LA CORRECCIÓN ESTÁ AQUÍ =====
-        # Cambiamos asistente[0] por asistente['id']
+    id_miembro_actual = session.get('user_id')
+    if id_miembro_actual:
         lista_ids_asistentes = [asistente['id'] for asistente in asistentes]
-        
         if id_miembro_actual in lista_ids_asistentes:
             usuario_esta_inscrito = True
+    
+    cursor.close()
+    conn.close()
 
-    # Asegúrate de pasar todas las variables necesarias a la plantilla
     return render_template('detalle_sesion.html', 
                            sesion=sesion_detalle, 
                            asistentes=asistentes, 
-                           miembros=miembros_todos, # Para el desplegable
                            usuario_esta_inscrito=usuario_esta_inscrito)
 
 @app.route('/sesion/<int:id_sesion>/confirmar', methods=['POST'])
+@login_required
 def confirmar_asistencia(id_sesion):
-    # Verificamos si hay un usuario en la sesión
-    if 'user_id' not in session:
-        flash('Debes iniciar sesión para confirmar tu asistencia.', 'warning')
-        return redirect(url_for('login'))
-
-    # Obtenemos el ID del usuario directamente de la sesión
-    id_miembro = session['user_id'] 
+    id_miembro = session['user_id']
+    conn = None  # Inicializamos la conexión como None
     
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # --- LÓGICA DIRECTAMENTE EN PYTHON ---
+
+        # 1. Verificar si la sesión es en el pasado
+        cursor.execute("SELECT fecha_proyeccion FROM sesiones WHERE id = %s", (id_sesion,))
+        sesion = cursor.fetchone()
+        if not sesion or sesion['fecha_proyeccion'] < datetime.now(sesion['fecha_proyeccion'].tzinfo):
+            flash('No se puede confirmar asistencia a una sesión pasada o inexistente.', 'danger')
+            return redirect(url_for('detalle_sesion', id_sesion=id_sesion))
+
+        # 2. Verificar si el usuario ya está inscrito
+        cursor.execute(
+            "SELECT id FROM asistencias WHERE id_sesion = %s AND id_miembro = %s",
+            (id_sesion, id_miembro)
+        )
+        ya_inscrito = cursor.fetchone()
+
+        if ya_inscrito:
+            flash('Ya estás inscrito en esta sesión.', 'warning')
+            return redirect(url_for('detalle_sesion', id_sesion=id_sesion))
+
+        # 3. Si todo está bien, insertar el registro
+        cursor.execute(
+            "INSERT INTO asistencias (id_sesion, id_miembro, confirmado) VALUES (%s, %s, %s)",
+            (id_sesion, id_miembro, True)
+        )
         
-        # Llamamos al procedimiento almacenado
-        cursor.execute("SELECT registrar_asistencia(%s, %s);", (id_sesion, id_miembro))
+        # --- FIN DE LA LÓGICA ---
         
-        conn.commit()
+        conn.commit() # Guardamos la transacción
         flash('¡Tu asistencia ha sido confirmada con éxito!', 'success')
+
     except Exception as e:
-        conn.rollback() # Importante hacer rollback si hay un error
-        flash(f'Error al confirmar la asistencia. Es posible que ya estés inscrito.', 'danger')
+        if conn:
+            conn.rollback() # Si algo sale mal, revertimos los cambios
+        
+        # Imprimimos el error real en la terminal para saber qué pasó
+        print(f"***** ERROR REAL en confirmar_asistencia: {e} *****")
+        
+        flash('Ocurrió un error inesperado al intentar confirmar tu asistencia.', 'danger')
+
     finally:
-        if cursor: cursor.close()
-        if conn: conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
     return redirect(url_for('detalle_sesion', id_sesion=id_sesion))
 

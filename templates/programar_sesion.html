@@ -1,22 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'layout.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Programar Nueva Sesión</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
+{% block title %}Programar Sesión - Club de Cine{% endblock %}
 
-<body>
-    <nav>
-        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a> |
-        <a href="{{ url_for('listar_miembros') }}">👥 Miembros</a> |
-        <a href="{{ url_for('programar_sesion') }}">🎬 Nueva Sesión</a> |
-        <a href="{{ url_for('listar_asistencias') }}">✅ Asistencias</a>
-    </nav>
+{% block content %}
     <h2>📅 Programar una Nueva Sesión</h2>
 
-    <form method="POST">
+    <form method="POST" class="form-styled">
         <label>Película:</label>
         <select name="pelicula" required>
             <option value="">-- Selecciona una película --</option>
@@ -42,10 +31,6 @@
         <button type="submit">Programar Sesión</button>
     </form>
 
-
-
     <br>
     <a href="{{ url_for('dashboard') }}">⬅ Volver al Dashboard</a>
-</body>
-
-</html>
+{% endblock %}

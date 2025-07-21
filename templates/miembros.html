@@ -1,54 +1,39 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends "layout.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Lista de Miembros</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
+{% block title %}Lista de Miembros{% endblock %}
 
-<body>
-    <nav>
-        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a> |
-        <a href="{{ url_for('listar_miembros') }}">👥 Miembros</a> |
-        <a href="{{ url_for('programar_sesion') }}">🎬 Nueva Sesión</a> |
-        <a href="{{ url_for('listar_asistencias') }}">✅ Asistencias</a>
-    </nav>
+{% block content %}
+    <h2>Miembros Registrados</h2>
 
-    <div class="container mt-4">
-        <h2>Miembros Registrados</h2>
+    {% if session.get('is_admin') %}
+        <div class="admin-actions">
+            <a href="{{ url_for('anadir_miembro') }}" class="button">➕ Añadir Nuevo Miembro</a>
+        </div>
+    {% endif %}
 
-        {% if miembros %}
+    {% if miembros %}
         <table class="table table-striped table-bordered mt-3">
             <thead class="table-dark">
                 <tr>
-                    <th>#</th>
                     <th>Nombre</th>
                     <th>Correo electrónico</th>
                 </tr>
             </thead>
             <tbody>
                 {% for miembro in miembros %}
-                <tr>
-                    <td>{{ miembro['nombre'] }}</td>
-                    <td>{{ miembro['email'] }}</td>
-                </tr>
+                    <tr>
+                        <td>{{ miembro['nombre'] }}</td>
+                        <td>{{ miembro['email'] }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% else %}
+    {% else %}
         <div class="alert alert-warning mt-3">
             No hay miembros registrados.
         </div>
-        {% endif %}
-    </div>
+    {% endif %}
 
-
-    <a href="{{ url_for('anadir_miembro') }}" class="btn">➕ Añadir nuevo miembro</a>
     <br>
-    <a href="{{ url_for('dashboard') }}">⬅ Volver al Dashboard</a>
-</body>
-
-</html>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-2">⬅ Volver al Dashboard</a>
+{% endblock %}
