@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash,sess
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import psycopg2.extras
-from database import get_db_connection
+from src.database import get_db_connection
 from datetime import datetime
 from functools import wraps
 
